@@ -1,31 +1,36 @@
 #!/usr/bin/python3
-"""1-top_ten.py"""
+"""
+Module to get the top 10 hot posts from a subreddit using the Reddit API.
+"""
 
 import requests
 
 
 def top_ten(subreddit):
-    """Prints the titles of the first 10 hot posts of a subreddit."""
-    url = "https://www.reddit.com/r/{}/hot.json?limit=10".format(subreddit)
-    headers = {"User-Agent": "MyRedditApp/0.1 (by u/yourusername)"}
+    """
+    Queries the Reddit API and prints the titles of the first 10 hot posts
+    for a given subreddit.
 
-    # Send a GET request to the Reddit API
-    response = requests.get(url, headers=headers, allow_redirects=False)
+    Args:
+        subreddit (str): The name of the subreddit to query.
 
-    # Check if the response is not valid (status code != 200)
-    if response.status_code != 200:
-        print("None")
-        return
-
-    # Try to extract data
+    If the subreddit is invalid or does not exist, prints None.
+    """
+    url = f"https://www.reddit.com/r/{subreddit}/hot.json?limit=10"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    
     try:
-        posts = response.json().get("data", {}).get("children", [])
-        if not posts:
-            print("None")
-            return
-
-        # Print titles of the first 10 hot posts
-        for post in posts[:10]:  # Ensure we only print 10 items
-            print(post.get("data", {}).get("title"))
-    except Exception:
-        print("None")
+        response = requests.get(url, headers=headers, allow_redirects=False)
+        
+        # Check if subreddit is valid and request succeeded
+        if response.status_code == 200:
+            data = response.json().get("data", {})
+            posts = data.get("children", [])
+            
+            # Print titles of the first 10 hot posts
+            for post in posts:
+                print(post["data"].get("title"))
+        else:
+            print(None)
+    except requests.RequestException:
+        print(None)
